@@ -2,7 +2,7 @@ import TelegramBot from "node-telegram-bot-api";
 import {
   getUserByTelegramId,
   upsertUser,
-  deleteUserByTelegramId,
+  unlinkTelegramId,
 } from "../services/userService.js";
 
 /**
@@ -52,11 +52,21 @@ export function createTelegramBot(pendingLinks) {
         telegramFirstName: msg.from.first_name,
       };
 
+      console.log("🔗 Спроба прив'язки:", {
+        code,
+        discordId,
+        telegramId: msg.from.id,
+        telegramUsername: userData.telegramUsername,
+      });
+
       const result = await upsertUser(userData);
+      console.log("📊 Результат upsertUser:", result);
+
       if (result) {
         pendingLinks.delete(code);
         telegramBot.sendMessage(msg.chat.id, "✅ Акаунти успішно привʼязані");
       } else {
+        console.error("❌ upsertUser повернув null або undefined");
         telegramBot.sendMessage(
           msg.chat.id,
           "❌ Помилка при збереженні привʼязки"
@@ -73,8 +83,8 @@ export function createTelegramBot(pendingLinks) {
         return;
       }
 
-      const deleted = await deleteUserByTelegramId(msg.from.id);
-      if (deleted) {
+      const unlinked = await unlinkTelegramId(msg.from.id);
+      if (unlinked) {
         telegramBot.sendMessage(msg.chat.id, "🗑 Привʼязку видалено");
       } else {
         telegramBot.sendMessage(

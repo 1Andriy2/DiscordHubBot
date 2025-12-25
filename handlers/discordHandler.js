@@ -55,7 +55,7 @@ export function createDiscordClient(
 
     if (message.content === "!unlink") {
       const user = await getUserByDiscordId(message.author.id);
-      if (!user) {
+      if (!user || !user.telegramId) {
         message.reply("ℹ️ У тебе немає привʼязки");
         return;
       }

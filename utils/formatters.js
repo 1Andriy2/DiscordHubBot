@@ -19,7 +19,7 @@ export async function formatDiscordMessage(message, getUserByDiscordId) {
   for (const user of message.mentions.users.values()) {
     const entry = await getUserByDiscordId(user.id);
     const name =
-      entry?.Username ||
+      entry?.userName ||
       message.guild?.members.cache.get(user.id)?.displayName ||
       user.username ||
       "Unknown";
